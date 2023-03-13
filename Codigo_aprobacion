@@ -1,0 +1,29 @@
+#Codigo para visualizar
+
+#se crea una base de datos en donde se agrupan los datos de aprobación y desaprobación y las fechas de publicación de cada encuesta
+dates <- as.Date(c("2022-08-15", "2022-08-22", "2022-09-05", "2022-10-14", "2022-10-15", "2022-11-10", "2022-11-11", 
+                   "2022-11-11", "2022-11-18", "2022-11-20", "2022-11-21", "2022-12-03", "2022-12-15", "2022-12-16", 
+                   "2023-02-11", "2023-02-15", "2023-02-17", "2023-02-24", "2023-03-01", "2023-03-03", "2023-03-05", 
+                   "2023-03-08", "2023-03-13"))
+approval <- c(56, 62, 69, 48, 46, 42, 62, 49.7, 49, 62, 48.7, 50, 48, 43, 36, 40, 41, 40, 49, 36, 51.2, 52, 34)
+disapproval <- c(20, 29, 20, 38, 40, 46, 26, 42.7, 40, 31, 45.2, 39, 44, 44, 53, 51, 46, 48, 50, 53, 39.8, 40, 55)
+df <- data.frame(dates, approval, disapproval)
+
+# Se crea el "scatter plot" con la linea de regresión polinomial 
+ggplot(df, aes(x = dates)) +
+  geom_point(aes(y = approval), color = "darkgreen") +
+  geom_smooth(aes(y = approval), method = "lm", formula = y ~ poly(x, 5), color = "darkgreen") +
+  geom_point(aes(y = disapproval), color = "red") +
+  geom_smooth(aes(y = disapproval), method = "lm", formula = y ~ poly(x, 5), color = "red") +
+  labs(x = "Fecha", y = "%", title = "Aprobación del Presidene Petro", subtitle = "Elaboración propia - modelo de regresión polinomial - Invamer, CNC, Datexco, Cifras y Conceptos, Guarumo y CELAG") +
+  theme_bw() +
+  scale_x_date(date_labels = "%m/%d/%y", date_breaks = "1 month")
+
+#Para predecir los valores de la última observación
+last_date <- tail(df$dates, 1)
+predicted_values <- predict(lm(approval ~ poly(dates, 5), data = df), newdata = data.frame(dates = last_date))
+
+#Proyectar valores
+predicted_values
+
+#Hacer exactamente lo mismo con la desaprobación
